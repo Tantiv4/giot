@@ -1,0 +1,95 @@
+﻿Cloud Side Setup 
+Setting up the Google IOT infra from the Host computer(MAC or Linux machine recommended).
+Basic Overview of Google IOT for beginners.
+Install the Google Cloud Command Line Tool
+Follow all the commands in the link to install google command line tool
+Installing the components
+gcloud components install beta
+Authenticate with Google Cloud
+ gcloud auth login
+Create cloud project - choose your unique project name
+gcloud projects create YOUR_PROJECT_NAME
+Add permissions for IoT Core
+gcloud projects add-iam-policy-binding YOUR_PROJECT_NAME --member=serviceAccount:cloud-iot@system.gserviceaccount.com --role=roles/pubsub.publisher
+Set default values for gcloud
+gcloud config set project YOUR_PROJECT_NAME
+Create PubSub topic for device data
+gcloud beta pubsub topics create <iot-topic>
+Create PubSub subscription for device data
+gcloud beta pubsub subscriptions create --topic <iot-topic> <iot-subscription>
+Create device registry
+gcloud beta iot registries create <iot-registry> --region us-central1 --event-pubsub-topic=<iot-topic>
+
+
+Steps to be run on Host machine
+Download the below tool to your computer
+* For Linux
+* For Windows 
+* For  Mac OS
+After Downloading the appropriate Tool, please follow the steps:-
+Pre requisites 
+projectid, registryid and regionid(us-central1 in this case) are the parameters which you have already created and used during the cloud setup. Please use the appropriate values for these three parameters to run in this tool.
+deviceid is the new device which you are creating using this tool. You can choose any device name. This device will be created under the same projectid, registryid and regionid
+Running the tool:
+* In linux system, please run the following command:-
+chmod 777 giot-linux
+./giot-linux --projectid=<> --registryid=<> --regionid=<> --deviceid=<>
+* In a Mac, please run the following command:-
+chmod 777 giot-macos
+./giot-macos --projectid=<> --registryid=<> --regionid=<> --deviceid=<>
+* In a windows machine, please run the following command:-
+   * Download openssl
+   * Unzip openssl
+   * Set PATH variable to pointing to OpenSSL binary in extracted location.
+   * Download OpenSSL Configuration file to following location C:/OpenSSL/openssl.cnf
+./giot-win.exe --projectid=<> --registryid=<> --regionid=<> --deviceid=<>
+
+
+Checking if device is created:
+Check if your registry and device is created in google console        
+
+
+Device Side Setup
+Connect the EVK to the Host computer via serial cable
+Open terminal 115200-8-N-1
+Connect to Network with the below commands:
+* Select option 18 to go to giot sub menu
+* Use option 4 to connect to network
+* Usage:
+4 <SSID> <Passphrase>
+* Passphrase can be left blank in case of a open network
+* The device will connect to the network and get IP
+
+
+Commands to connect to giot:
+* Select option 18-giot(Ignore if you are already in GIOT menu)
+* Init
+   * init -p <project_id> -r <registry_id> -d <device_ID> - R <region ID>
+   * Make sure the project id, registry id, device id and region id are the same as already used for device creation
+* Upon successful Connection ,a message “Welcome to 4020” will be sent as a device state.
+* In case of error(SSL error), disconnect from GIOT and connect again
+* To disconnect use option 7 under GIOT commands
+* To check the state go to Google IOT console. 
+   * Select the appropriate registry
+   * Select the device from the devices list
+   * Go to “Configuration and State History”
+
+
+Sending Message from Cloud to Device
+* To send a message to device use UPDATE CONFIG option in Google IOT Console. Any text message can be sent.
+* The message can be seen in the serial console of the device
+
+
+Configuring LED from IOT console
+* LED connections for QC4020 EVK
+   * Connect J9 Pin 2 to J3 Pin 3
+          
+* To turn on the LED, send the message “Turn ON LED” from the UPDATE CONFIG in Google IOT console
+* To turn off the LED, send the message “Turn OFF LED”
+Sending Message from Device to Cloud
+* To send message from Device to Cloud:
+   * publish -m < message>-t <events/state>
+   * Message:- Is the message that will be sent
+   * -t is optional. Default is state. ‘-t’ will send the telemetry data
+   * Example to publish state: 
+publish -m “Hello world”
